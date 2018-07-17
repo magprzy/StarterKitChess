@@ -19,9 +19,9 @@ public class Board {
 	
 	public static final int SIZE = 8;
 	
-	private Piece[][] pieces = new Piece[SIZE][SIZE];
+	private Piece[][] pieces = new Piece[SIZE][SIZE]; 
 	private List<Move> moveHistory = new ArrayList<>();
-	private BoardState state;
+	private BoardState state; 
 	
 	public Board() {
 	}

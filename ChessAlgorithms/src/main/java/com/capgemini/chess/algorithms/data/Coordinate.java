@@ -8,8 +8,7 @@ package com.capgemini.chess.algorithms.data;
  */
 public class Coordinate {
 
-	
-	//commit
+
 	private int x;
 	private int y;
 

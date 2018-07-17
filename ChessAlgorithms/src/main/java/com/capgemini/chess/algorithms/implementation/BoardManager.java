@@ -3,6 +3,8 @@ package com.capgemini.chess.algorithms.implementation;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.print.attribute.standard.RequestingUserName;
+
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
@@ -23,6 +25,7 @@ import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckExcep
 public class BoardManager {
 
 	private Board board = new Board();
+	List<Coordinate> allPosibleMoves;
 
 	public BoardManager() {
 		initBoard();
@@ -232,9 +235,51 @@ public class BoardManager {
 	}
 
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
-
+		MoveController moveController = new MoveController();
+		GeneralMoveValidator moveValidator = new GeneralMoveValidator();
 		// TODO please add implementation here
-		return null;
+		
+		moveValidator.moveIsOnBoard(from, to);
+		moveValidator.squareIsOccupied(from);
+		onSquareIsPlayerPiece(from);
+		
+				switch (moveValidator.pieceTypeOnSquare(from)) {
+				case ROOK:
+					allPosibleMoves = moveController.rookMove(from);
+					break;
+				case BISHOP:
+					allPosibleMoves = moveController.bishopMove(from);
+					break;
+				case QUEEN:
+					allPosibleMoves = moveController.queenMove(from);
+					break;
+				case KING:
+					allPosibleMoves = moveController.kingMove(from);
+					break;
+				case PAWN:
+					allPosibleMoves = moveController.pawnMove(from);
+					break;
+				case KNIGHT:
+					allPosibleMoves = moveController.knightMove(from);
+					break;
+				default:
+					break;
+				}
+				if (allPosibleMoves.contains(to)) {
+
+					if (moveValidator.squareIsOccupied(to)) {
+
+						if (onSquareIsPlayerPiece(to)) {
+							throw new InvalidMoveException();
+
+						} else {
+
+						}
+					}
+				}
+			
+		throw new InvalidMoveException();
+
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
@@ -249,6 +294,28 @@ public class BoardManager {
 
 		return false;
 	}
+
+	
+ /**
+  * 
+  * @param from
+  * @return
+  * @throws InvalidMoveException
+  */
+	private boolean onSquareIsPlayerPiece(Coordinate from) throws InvalidMoveException {
+		Color moveColor = calculateNextMoveColor();
+		Piece piece = this.board.getPieceAt(from);
+		Color pieceColor = piece.getColor();
+
+		if (pieceColor.equals(moveColor)) {
+			return true;
+		}
+
+		throw new InvalidMoveException();
+
+	}
+
+	
 
 	private Color calculateNextMoveColor() {
 		if (this.board.getMoveHistory().size() % 2 == 0) {
