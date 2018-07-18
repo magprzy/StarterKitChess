@@ -1,5 +1,6 @@
 package com.capgemini.chess.algorithms.implementation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckExcep
 public class BoardManager {
 
 	private Board board = new Board();
-	List<Coordinate> allPosibleMoves;
+	
 
 	public BoardManager() {
 		initBoard();
@@ -234,52 +235,34 @@ public class BoardManager {
 		this.board.setPieceAt(null, lastMove.getTo());
 	}
 
+
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
-		MoveController moveController = new MoveController();
-		GeneralMoveValidator moveValidator = new GeneralMoveValidator();
+		
+		GeneralMoveValidator moveValidator = new GeneralMoveValidator(this);
+		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
+		Move move = new Move();
 		// TODO please add implementation here
 		
 		moveValidator.moveIsOnBoard(from, to);
+		moveValidator.squareFromIsDfferentThanTo(from, to);
 		moveValidator.squareIsOccupied(from);
-		onSquareIsPlayerPiece(from);
+		moveValidator.setPlayerColor(calculateNextMoveColor());
+		moveValidator.onSquareFromIsPlayerPiece(from);
+		if (board.getPieceAt(to) != null)
+			{moveValidator.onSquareToIsNotPlayerPiece(to);}
 		
-				switch (moveValidator.pieceTypeOnSquare(from)) {
-				case ROOK:
-					allPosibleMoves = moveController.rookMove(from);
-					break;
-				case BISHOP:
-					allPosibleMoves = moveController.bishopMove(from);
-					break;
-				case QUEEN:
-					allPosibleMoves = moveController.queenMove(from);
-					break;
-				case KING:
-					allPosibleMoves = moveController.kingMove(from);
-					break;
-				case PAWN:
-					allPosibleMoves = moveController.pawnMove(from);
-					break;
-				case KNIGHT:
-					allPosibleMoves = moveController.knightMove(from);
-					break;
-				default:
-					break;
-				}
-				if (allPosibleMoves.contains(to)) {
-
-					if (moveValidator.squareIsOccupied(to)) {
-
-						if (onSquareIsPlayerPiece(to)) {
-							throw new InvalidMoveException();
-
-						} else {
-
-						}
-					}
-				}
+		allMovesFromTo = moveValidator.generatesAllPosibleMovesFromTo(from, to);
+		if(allMovesFromTo.contains(to)){
+			move = moveValidator.makeMove(allMovesFromTo, from, to);
+		}
+		else {
+			throw new InvalidMoveException();
+		}
+		
+					
+		return move;
+		
 			
-		throw new InvalidMoveException();
-
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
@@ -302,7 +285,7 @@ public class BoardManager {
   * @return
   * @throws InvalidMoveException
   */
-	private boolean onSquareIsPlayerPiece(Coordinate from) throws InvalidMoveException {
+	/*private boolean onSquareIsPlayerPiece(Coordinate from) throws InvalidMoveException {
 		Color moveColor = calculateNextMoveColor();
 		Piece piece = this.board.getPieceAt(from);
 		Color pieceColor = piece.getColor();
@@ -314,7 +297,7 @@ public class BoardManager {
 		throw new InvalidMoveException();
 
 	}
-
+*/
 	
 
 	private Color calculateNextMoveColor() {
