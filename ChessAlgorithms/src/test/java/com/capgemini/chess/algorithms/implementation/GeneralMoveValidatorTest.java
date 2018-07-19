@@ -9,7 +9,6 @@ import org.junit.Test;
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
-import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
 import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
@@ -127,7 +126,7 @@ public class GeneralMoveValidatorTest {
 		Board board = new Board();
 		BoardManager boardManager = new BoardManager(board);
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		
+
 		GeneralMoveValidator myValidator = new GeneralMoveValidator(boardManager);
 
 		// when
@@ -150,54 +149,82 @@ public class GeneralMoveValidatorTest {
 		BoardManager boardManager = new BoardManager(board);
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
 		GeneralMoveValidator myValidator = new GeneralMoveValidator(boardManager);
-		
+
 		// when
 		PieceType pieceType = myValidator.pieceTypeOnSquare(new Coordinate(4, 0));
 
 		// then
 		assertEquals(PieceType.KING, pieceType);
 	}
-	
-	
-	@Test 
-	public void twoMoveCheckmate() throws InvalidMoveException{
-		//given 
+
+	@Test
+	public void twoMoveCheckmate() throws InvalidMoveException {
+		// given
 		BoardManager boardManager = new BoardManager();
-		boardManager.performMove(new Coordinate(6, 1), new Coordinate(6,3));
-		boardManager.performMove(new Coordinate(4,6), new Coordinate(4,4));
+		boardManager.performMove(new Coordinate(6, 1), new Coordinate(6, 3));
+		boardManager.performMove(new Coordinate(4, 6), new Coordinate(4, 4));
 		boardManager.performMove(new Coordinate(5, 1), new Coordinate(5, 2));
-		Move  move = boardManager.performMove(new Coordinate(3,7), new Coordinate(7,3));
+		Move move = boardManager.performMove(new Coordinate(3, 7), new Coordinate(7, 3));
 		BoardState boardState = boardManager.updateBoardState();
-		
-		
+
 		assertEquals(MoveType.ATTACK, move.getType());
 		assertEquals(Piece.BLACK_QUEEN, move.getMovedPiece());
 
-		
 		// then
 		assertEquals(BoardState.CHECK_MATE, boardState);
-		
-		
+
 	}
-	
+
 	@Test
-	public void testWhitePawn(){
-	Board board = new Board();
-	board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(0, 1));
-	
-	// when
-	BoardManager boardManager = new BoardManager(board);
-	boolean exceptionThrown = false;
-	try {
-		boardManager.performMove(new Coordinate(0, 1), new Coordinate(5, 1));
-	} catch (InvalidMoveException e) {
-		exceptionThrown = true;
+	public void testWhitePawn() {
+		Board board = new Board();
+		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(0, 1));
+
+		// when
+		BoardManager boardManager = new BoardManager(board);
+		boolean exceptionThrown = false;
+		try {
+			boardManager.performMove(new Coordinate(0, 1), new Coordinate(5, 1));
+		} catch (InvalidMoveException e) {
+			exceptionThrown = true;
+		}
+
+		// then
+		assertTrue(exceptionThrown);
+
 	}
-	
-	// then 
-	assertTrue(exceptionThrown);
-	
+
+	@Test
+	public void shouldRetureTrueIfRookCanMoveBack() throws InvalidMoveException {
+		Board board = new Board();
+		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(2, 4));
+
+		// when
+		BoardManager boardManager = new BoardManager(board);
+
+		Move move = boardManager.performMove(new Coordinate(2, 4), new Coordinate(2, 0));
+		Piece newCoordinate = board.getPieceAt(new Coordinate(2, 0));
+
+		// then
+		assertEquals(Piece.WHITE_ROOK, move.getMovedPiece());
+		assertEquals(Piece.WHITE_ROOK, newCoordinate);
+
 	}
-	
-	
+
+	@Test
+	public void shouldRetureTrueIfRookCanMoveInLeft() throws InvalidMoveException {
+		Board board = new Board();
+		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(6, 5));
+
+		// when
+		BoardManager boardManager = new BoardManager(board);
+
+		Move move = boardManager.performMove(new Coordinate(6, 5), new Coordinate(2, 5));
+		Piece newCoordinate = board.getPieceAt(new Coordinate(2, 5));
+
+		// then
+		assertEquals(Piece.WHITE_ROOK, move.getMovedPiece());
+		assertEquals(Piece.WHITE_ROOK, newCoordinate);
+	}
+
 }

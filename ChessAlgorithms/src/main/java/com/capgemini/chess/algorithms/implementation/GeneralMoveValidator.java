@@ -3,20 +3,14 @@ package com.capgemini.chess.algorithms.implementation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.experimental.theories.FromDataPoints;
-
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
-import com.capgemini.chess.algorithms.data.enums.BoardState;
 import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
 import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
 import com.capgemini.chess.algorithms.data.generated.Board;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
-import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckException;
-
-import javafx.scene.shape.CubicCurve;
 
 public class GeneralMoveValidator {
 	BoardManager boardManager;
@@ -28,16 +22,14 @@ public class GeneralMoveValidator {
 
 	public GeneralMoveValidator(BoardManager boardManager) {
 		this.boardManager = boardManager;
-		
+
 	}
 
-	
-	
 	public boolean moveValidator(Coordinate from, Coordinate to, Color playerColor) throws InvalidMoveException {
 
 		Board board = boardManager.getBoard();
 		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
-		
+
 		moveIsOnBoard(from, to);
 		squareFromIsDfferentThanTo(from, to);
 		squareIsOccupied(from);
@@ -102,7 +94,6 @@ public class GeneralMoveValidator {
 		Board board = boardManager.getBoard();
 		Piece piece = board.getPieceAt(from);
 		Color pieceColor = piece.getColor();
-		
 
 		if (pieceColor.equals(playerColor)) {
 			return true;
@@ -193,7 +184,7 @@ public class GeneralMoveValidator {
 				if (pieceTo == null) {
 					move.setType(MoveType.ATTACK);
 					move.setMovedPiece(pieceFrom);
-					
+
 				} else
 					throw new InvalidMoveException();
 			} else if (from.getX() != to.getX()) {

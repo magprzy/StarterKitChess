@@ -1,12 +1,7 @@
 package com.capgemini.chess.algorithms.implementation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.print.attribute.standard.RequestingUserName;
-
-import org.assertj.core.internal.bytebuddy.description.ModifierReviewable.OfAbstraction;
 
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
@@ -28,7 +23,6 @@ import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckExcep
 public class BoardManager {
 
 	private Board board = new Board();
-	
 
 	public BoardManager() {
 		initBoard();
@@ -242,7 +236,6 @@ public class BoardManager {
 		GeneralMoveValidator generalMoveValidator = new GeneralMoveValidator(this);
 		Move move = new Move();
 		Color playerColor = calculateNextMoveColor();
-		// TODO please add implementation here
 
 		generalMoveValidator.moveValidator(from, to, playerColor);
 		move = generalMoveValidator.makeMove(from, to);
@@ -251,28 +244,25 @@ public class BoardManager {
 		Piece oponentPiece = board.getPieceAt(to);
 		board.setPieceAt(movedPiece, to);
 		board.setPieceAt(null, from);
-		
 
 		boolean result = isKingInCheck(playerColor);
 		board.setPieceAt(movedPiece, from);
 		board.setPieceAt(oponentPiece, to);
-		
+
 		if (!result) {
 			return move;
 		}
 
 		throw new KingInCheckException();
-		
+
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
 
 		GeneralMoveValidator generalMoveValidator = new GeneralMoveValidator(this);
-		
-		
-		Coordinate coordinateKing = generalMoveValidator.findPlayersKing(calculateNextMoveColor());
-
 		Move move = new Move();
+
+		Coordinate coordinateKing = generalMoveValidator.findPlayersKing(calculateNextMoveColor());
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
@@ -294,7 +284,6 @@ public class BoardManager {
 				}
 			}
 		}
-		// TODO please add implementation here
 		return false;
 	}
 
@@ -323,8 +312,6 @@ public class BoardManager {
 
 			}
 		}
-
-		// TODO please add implementation here
 
 		return false;
 

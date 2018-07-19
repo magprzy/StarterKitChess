@@ -10,6 +10,8 @@ import com.capgemini.chess.algorithms.data.generated.Board;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 
 /**
+ * Create list with all coordinates from square"from" to square "to". 
+ * List contains also coordinate "to":
  * 
  * @author MAGPRZYB
  *
