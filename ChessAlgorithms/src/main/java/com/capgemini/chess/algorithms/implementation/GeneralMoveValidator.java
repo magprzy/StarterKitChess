@@ -3,6 +3,8 @@ package com.capgemini.chess.algorithms.implementation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.experimental.theories.FromDataPoints;
+
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
@@ -12,6 +14,7 @@ import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
 import com.capgemini.chess.algorithms.data.generated.Board;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
+import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckException;
 
 import javafx.scene.shape.CubicCurve;
 
@@ -26,7 +29,30 @@ public class GeneralMoveValidator {
 	public GeneralMoveValidator(BoardManager boardManager) {
 		this.boardManager = boardManager;
 	}
-
+	
+	public boolean moveValidator(Coordinate from, Coordinate to, Color playerColor) throws InvalidMoveException{
+		
+		Board board = boardManager.getBoard();
+		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
+		
+		
+		moveIsOnBoard(from, to);
+		squareFromIsDfferentThanTo(from, to);
+		squareIsOccupied(from);
+		setPlayerColor(playerColor);
+		onSquareFromIsPlayerPiece(from);
+		if (board.getPieceAt(to) != null) {
+			onSquareToIsNotPlayerPiece(to);
+		}
+		allMovesFromTo = generatesAllPosibleMovesFromTo(from, to);
+		allMovesFromTo.contains(to);
+		return true;
+		//throw new InvalidMoveException();
+		
+		
+		
+	}
+	
 	public boolean squareIsInRange(int x, int y) {
 		if (x >= 0 && x < 8 && y >= 0 && y < 8) {
 			return true;
@@ -69,7 +95,7 @@ public class GeneralMoveValidator {
 	 * = board.getPieceAt(to); if (piece != null) { return true; } else return
 	 * false; }
 	 */
-	
+
 	public PieceType pieceTypeOnSquare(Coordinate from) {
 		Board board = boardManager.getBoard();
 		Piece piece = board.getPieceAt(from);
@@ -82,16 +108,16 @@ public class GeneralMoveValidator {
 	}
 
 	public boolean onSquareFromIsPlayerPiece(Coordinate from) throws InvalidMoveException {
-		
+
 		Board board = boardManager.getBoard();
 		Piece piece = board.getPieceAt(from);
 		Color pieceColor = piece.getColor();
 
 		if (pieceColor.equals(playerColor)) {
 			return true;
+		} else {
+			throw new InvalidMoveException();
 		}
-		else
-		{throw new InvalidMoveException();}
 
 	}
 
@@ -137,23 +163,27 @@ public class GeneralMoveValidator {
 		return allMovesFromTo;
 	}
 
-	public Move makeMove(List<Coordinate> allMovesFromTo, Coordinate from, Coordinate to) throws InvalidMoveException {
+	public Move makeMove(Coordinate from, Coordinate to) throws InvalidMoveException {
 		Move move = new Move();
 		Board board = boardManager.getBoard();
 		Piece pieceFrom = board.getPieceAt(from);
 		Piece pieceTo = board.getPieceAt(to);
 		int full = 0;
+		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
+		allMovesFromTo = generatesAllPosibleMovesFromTo(from, to);
+		
 
 		if (allMovesFromTo.size() == 1 && pieceFrom.getType() != PieceType.PAWN) {
 			if (pieceTo == null) {
 				move.setType(MoveType.ATTACK);
-				board.setPieceAt(pieceFrom, to);
+				move.setMovedPiece(pieceFrom);
+				//board.setPieceAt(pieceFrom, to);
 			} else {
 				move.setType(MoveType.CAPTURE);
-				board.setPieceAt(pieceFrom, to);
+				move.setMovedPiece(pieceFrom);
+				//board.setPieceAt(pieceFrom, to);
 			}
-		} 
-		else if (allMovesFromTo.size() > 1 && pieceFrom.getType() != PieceType.PAWN) {
+		} else if (allMovesFromTo.size() > 1 && pieceFrom.getType() != PieceType.PAWN) {
 			allMovesFromTo.remove(to);
 			for (int i = 0; i < allMovesFromTo.size(); i++) {
 
@@ -166,64 +196,86 @@ public class GeneralMoveValidator {
 			if (full == 0) {
 				if (pieceTo == null) {
 					move.setType(MoveType.ATTACK);
-					board.setPieceAt(pieceFrom, to);
+					move.setMovedPiece(pieceFrom);
+					//board.setPieceAt(pieceFrom, to);
 				} else {
 					move.setType(MoveType.CAPTURE);
-					board.setPieceAt(pieceFrom, to);
+					move.setMovedPiece(pieceFrom);
+					//board.setPieceAt(pieceFrom, to);
 				}
-			}
-			else 
+			} else
 				throw new InvalidMoveException();
-		}
-		else if((allMovesFromTo.size() == 1 && pieceFrom.getType() == PieceType.PAWN)){
-			if(from.getX() == to.getX()){
+		} else if ((allMovesFromTo.size() == 1 && pieceFrom.getType() == PieceType.PAWN)) {
+			if (from.getX() == to.getX()) {
 				if (pieceTo == null) {
 					move.setType(MoveType.ATTACK);
-					board.setPieceAt(pieceFrom, to);
-					}
-				else
+					move.setMovedPiece(pieceFrom);
+					//board.setPieceAt(pieceFrom, to);
+				} else
 					throw new InvalidMoveException();
-				}
-			else if(from.getX() != to.getX()){
+			} else if (from.getX() != to.getX()) {
 				if (pieceTo != null) {
 					move.setType(MoveType.CAPTURE);
-					board.setPieceAt(pieceFrom, to);
-					}
-				else
-					throw new InvalidMoveException();
-				}
-			else if((allMovesFromTo.size() > 1 && pieceFrom.getType() == PieceType.PAWN)){
-				if (pieceTo == null){
-					allMovesFromTo.remove(to);
-					Coordinate squareBetweenFromTo = allMovesFromTo.get(0);
-					Piece pieceBetweenFromTo = board.getPieceAt(squareBetweenFromTo);	
-					if(pieceBetweenFromTo == null){
-						move.setType(MoveType.ATTACK);
-						board.setPieceAt(pieceFrom, to);
-					}
-				}
-				else 
+					move.setMovedPiece(pieceFrom);
+					//board.setPieceAt(pieceFrom, to);
+				} else
 					throw new InvalidMoveException();
 			}
-				
-				
-				
-			}
+		} else if ((allMovesFromTo.size() > 1 && pieceFrom.getType() == PieceType.PAWN)) {
+			if (pieceTo == null) {
+				allMovesFromTo.remove(to);
+				Coordinate squareBetweenFromTo = allMovesFromTo.get(0);
+				Piece pieceBetweenFromTo = board.getPieceAt(squareBetweenFromTo);
+				if (pieceBetweenFromTo == null) {
+					move.setType(MoveType.ATTACK);
+					move.setMovedPiece(pieceFrom);
+					//board.setPieceAt(pieceFrom, to);
+				}
+			} else
+				throw new InvalidMoveException();
+		}
+
 		move.setFrom(from);
 		move.setTo(to);
 		move.setMovedPiece(pieceFrom);
 		return move;
-		}
-	
 
-	public boolean squareIsFree(Coordinate to) {
-
-		Board board = boardManager.getBoard();
-		Piece piece = board.getPieceAt(to);
-		if (piece == null) {
-			return true;
-		}
-		return false;
 	}
+
+	/*
+	 * public boolean squareIsFree(Coordinate to) {
+	 * 
+	 * Board board = boardManager.getBoard(); Piece piece =
+	 * board.getPieceAt(to); if (piece == null) { return true; } return false; }
+	 */
+	public Coordinate findPlayersKing(Color playerColor) {
+		this.playerColor = playerColor;
+		Board board = boardManager.getBoard();
+		int xKing = 0;
+		int yKing = 0;
+		Coordinate kingCoordinate;
+		// Piece piece = board.getPieceAt(new Coordinate(x, y));
+
+		for (int x = 0; x < 8; x++) {
+			for (int y = 0; y < 8; y++) {
+				Piece piece = board.getPieceAt(new Coordinate(x, y));
+				xKing = x;
+				yKing = y;
+				if (piece != null) {
+					if (piece.getType() == PieceType.KING && piece.getColor() == playerColor) {
+						xKing = x;
+						yKing = y;
+						kingCoordinate = new Coordinate(xKing, yKing);
+						return kingCoordinate;
+					}
+
+				}
+			}
+		}
+
+		return null;
+	}
+
+	
 
 }

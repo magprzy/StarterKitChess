@@ -15,10 +15,11 @@ import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveExcep
 public class MoveController {
 	BoardManager boardManager;
 	GeneralMoveValidator moveValidator = new GeneralMoveValidator(boardManager);
-	
-	public MoveController( ) {
-		
+
+	public MoveController() {
+
 	}
+
 	public MoveController(BoardManager boardManager) {
 		this.boardManager = boardManager;
 	}
@@ -31,40 +32,32 @@ public class MoveController {
 		int xTo = to.getX();
 		int yTo = to.getY();
 
-		if (xFrom == xTo)
-		{	if(yFrom > yTo){
-				for(int y = yFrom+1; y >= yTo; y--)
-				{
-						rookMoves.add(new Coordinate(xFrom, y));
+		if (xFrom == xTo) {
+			if (yFrom > yTo) {
+				for (int y = yFrom; y >= yTo; y--) {
+					rookMoves.add(new Coordinate(xFrom, y));
 				}
+			} else {
+				for (int y = yFrom; y <= yTo; y++) {
+					rookMoves.add(new Coordinate(xFrom, y));
 				}
-			else 
-			{
-				for (int y = yFrom+1; y<=yTo; y++)
-				{rookMoves.add(new Coordinate(xFrom, y));}
-			}	
-		}	
-		else if(yFrom==yTo)
-		{	if(xFrom>xTo)
-			{
-			for(int x = xFrom+1; x >= xTo; x--)
-				{rookMoves.add(new Coordinate(x, yFrom));
-			}}
-			else
-			{
-				for(int x = xFrom+1; x <= xTo; x++)
-				{rookMoves.add(new Coordinate(x, yFrom));
+			}
+		} else if (yFrom == yTo) {
+			if (xFrom > xTo) {
+				for (int x = xFrom; x >= xTo; x--) {
+					rookMoves.add(new Coordinate(x, yFrom));
 				}
-			}}
-		else {
+			} else {
+				for (int x = xFrom; x <= xTo; x++) {
+					rookMoves.add(new Coordinate(x, yFrom));
+				}
+			}
+		} else {
 			throw new InvalidMoveException();
 		}
-	
+		rookMoves.remove(from);
 		return rookMoves;
 	}
-
-	
-
 
 	public List<Coordinate> bishopMove(Coordinate from, Coordinate to) throws InvalidMoveException {
 		List<Coordinate> bishopMoves = new ArrayList<Coordinate>();
@@ -74,56 +67,49 @@ public class MoveController {
 		int xTo = to.getX();
 		int yTo = to.getY();
 
-		
-		if ( xFrom < xTo){
-				if (yFrom < yTo){
-					for (int i = 1; i <= (xTo-xFrom); i++)
-						bishopMoves.add(new Coordinate(xFrom + i,yFrom + i));
-				}
-				else {
-					for (int i = 1; i <= (xTo-xFrom); i++) 
-						bishopMoves.add(new Coordinate(xFrom + i,yFrom - i));
-					
-				}
-				
+		if (xFrom < xTo) {
+			if (yFrom < yTo) {
+				for (int i = 1; i <= (xTo - xFrom); i++)
+					bishopMoves.add(new Coordinate(xFrom + i, yFrom + i));
+			} else {
+				for (int i = 1; i <= (xTo - xFrom); i++)
+					bishopMoves.add(new Coordinate(xFrom + i, yFrom - i));
+
 			}
-		else if (xFrom > xTo){
-				if(yFrom < yTo){
-					for (int i = 1; i <= (xFrom -xTo); i++)
-						bishopMoves.add(new Coordinate(xFrom - i,yFrom + i));
-				}
-				else {
-					for (int i = 1; i <= (xFrom -xTo); i++) {
-						bishopMoves.add(new Coordinate(xFrom - i,yFrom - i));
-					}
+
+		} else if (xFrom > xTo) {
+			if (yFrom < yTo) {
+				for (int i = 1; i <= (xFrom - xTo); i++)
+					bishopMoves.add(new Coordinate(xFrom - i, yFrom + i));
+			} else {
+				for (int i = 1; i <= (xFrom - xTo); i++) {
+					bishopMoves.add(new Coordinate(xFrom - i, yFrom - i));
 				}
 			}
-		
-			else {
-				throw new InvalidMoveException();
-			}
-		
-		
-		if (bishopMoves.contains(to)){
-			return bishopMoves;
 		}
+
 		else {
+			throw new InvalidMoveException();
+		}
+
+		if (bishopMoves.contains(to)) {
+			return bishopMoves;
+		} else {
 			throw new InvalidMoveException();
 		}
 	}
 
 	public List<Coordinate> queenMove(Coordinate from, Coordinate to) throws InvalidMoveException {
 		List<Coordinate> queenMoves = new ArrayList<Coordinate>();
-		
+
 		boolean exceptionThrown = false;
-		
+
 		try {
 			queenMoves = rookMove(from, to);
 		} catch (InvalidMoveException e) {
 			exceptionThrown = true;
 		}
-		if (exceptionThrown==true)
-		{
+		if (exceptionThrown == true) {
 			queenMoves = bishopMove(from, to);
 		}
 
@@ -137,17 +123,14 @@ public class MoveController {
 		int yFrom = from.getY();
 		int xTo = to.getX();
 		int yTo = to.getY();
-		
-		if(xFrom == xTo-1 || xFrom == xTo || xFrom == xTo+1 ) {
-			if (yFrom == yTo-1 || yFrom == xTo || yFrom == yTo +1 )
-			{
-			kingMoves.add(new Coordinate(xTo, yTo));
-			}
-			else {
+
+		if (xFrom == xTo - 1 || xFrom == xTo || xFrom == xTo + 1) {
+			if (yFrom == yTo - 1 || yFrom == xTo || yFrom == yTo + 1) {
+				kingMoves.add(new Coordinate(xTo, yTo));
+			} else {
 				throw new InvalidMoveException();
-			}	
-		}
-		else {
+			}
+		} else {
 			throw new InvalidMoveException();
 		}
 
@@ -168,37 +151,40 @@ public class MoveController {
 
 		if (pieceColor == Color.WHITE) {
 			if (yFrom == 1) {
-				if (xTo == xFrom && yTo == yFrom+2){
-					while( yFrom<=yTo ){
+				if (xTo == xFrom && yTo == yFrom + 2) {
+					while (yFrom <= yTo) {
 						pawnMoves.add(new Coordinate(xTo, yFrom++));
-					}}}
-				
-			else  if((xTo == xFrom-1 && yTo == yFrom+1) || (xTo == xFrom && yTo ==yFrom +1) || (xTo == xFrom && yTo == yFrom+2))
-					{
-						pawnMoves.add(new Coordinate(xTo, yTo));
-						} 	
-				
-				else 
-					throw new InvalidMoveException();
+					}
 				}
-						
+			}
+
+			else if ((xTo == xFrom - 1 && yTo == yFrom + 1) || (xTo == xFrom && yTo == yFrom + 1)
+					|| (xTo == xFrom+1 && yTo == yFrom + 1)) {
+				pawnMoves.add(new Coordinate(xTo, yTo));
+			}
+
+			else
+				throw new InvalidMoveException();
+		}
+
 		else if (pieceColor == Color.BLACK) {
 			if (yFrom == 6) {
-				if (xTo == xFrom && yTo == yFrom-2){
-					while( yFrom>=yTo ){
+				if (xTo == xFrom && yTo == yFrom - 2) {
+					while (yFrom >= yTo) {
 						pawnMoves.add(new Coordinate(xTo, yFrom--));
-					}}}
-				
-			else  if((xTo == xFrom-1 && yTo == yFrom-1) || (xTo == xFrom && yTo ==yFrom-1) || (xTo == xFrom && yTo == yFrom-2))
-					{
-						pawnMoves.add(new Coordinate(xTo, yTo));
-						} 	
-				
-				else 
-					throw new InvalidMoveException();
+					}
 				}
-	
-	
+			}
+
+			else if ((xTo == xFrom - 1 && yTo == yFrom - 1) || (xTo == xFrom && yTo == yFrom - 1)
+					|| (xTo == xFrom && yTo == yFrom - 2)) {
+				pawnMoves.add(new Coordinate(xTo, yTo));
+			}
+
+			else
+				throw new InvalidMoveException();
+		}
+
 		pawnMoves.remove(from);
 		return pawnMoves;
 	}
@@ -210,35 +196,26 @@ public class MoveController {
 		int yFrom = from.getY();
 		int xTo = to.getX();
 		int yTo = to.getY();
-		
-		
-		if (xTo == xFrom +1 && yTo == yFrom+2){
-				knightMoves.add(to);
-		}
-		else if (xTo == xFrom +1 && yTo == yFrom-2){
+
+		if (xTo == xFrom + 1 && yTo == yFrom + 2) {
 			knightMoves.add(to);
-		}
-		else if (xTo == xFrom +2 && yTo == yFrom+1){
+		} else if (xTo == xFrom + 1 && yTo == yFrom - 2) {
 			knightMoves.add(to);
-		}
-		else if (xTo == xFrom +2 && yTo == yFrom-1){
+		} else if (xTo == xFrom + 2 && yTo == yFrom + 1) {
 			knightMoves.add(to);
-		}
-		else if (xTo == xFrom -1 && yTo == yFrom+2){
+		} else if (xTo == xFrom + 2 && yTo == yFrom - 1) {
 			knightMoves.add(to);
-		}
-		else if (xTo == xFrom -1 && yTo == yFrom-2){
+		} else if (xTo == xFrom - 1 && yTo == yFrom + 2) {
 			knightMoves.add(to);
-		}	
-		else if (xTo == xFrom -2 && yTo == yFrom+1){
+		} else if (xTo == xFrom - 1 && yTo == yFrom - 2) {
 			knightMoves.add(to);
-		}
-		else if (xTo == xFrom -2 && yTo == yFrom-1){
+		} else if (xTo == xFrom - 2 && yTo == yFrom + 1) {
 			knightMoves.add(to);
-		}
-		else {
+		} else if (xTo == xFrom - 2 && yTo == yFrom - 1) {
+			knightMoves.add(to);
+		} else {
 			throw new InvalidMoveException();
-		}			
+		}
 		return knightMoves;
 	}
 }

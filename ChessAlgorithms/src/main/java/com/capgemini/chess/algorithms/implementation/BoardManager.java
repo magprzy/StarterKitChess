@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.print.attribute.standard.RequestingUserName;
 
+import org.assertj.core.internal.bytebuddy.description.ModifierReviewable.OfAbstraction;
+
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
@@ -26,7 +28,6 @@ import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckExcep
 public class BoardManager {
 
 	private Board board = new Board();
-	
 
 	public BoardManager() {
 		initBoard();
@@ -235,70 +236,116 @@ public class BoardManager {
 		this.board.setPieceAt(null, lastMove.getTo());
 	}
 
-
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
-		
-		GeneralMoveValidator moveValidator = new GeneralMoveValidator(this);
-		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
+
+		GeneralMoveValidator generalMoveValidator = new GeneralMoveValidator(this);
+		// List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
 		Move move = new Move();
+		Color playerColor = calculateNextMoveColor();
 		// TODO please add implementation here
+
+		generalMoveValidator.moveValidator(from, to, playerColor);
+		move = generalMoveValidator.makeMove(from, to);
+
+		Piece movedPiece = move.getMovedPiece();
+		Piece oponentPiece = board.getPieceAt(to);
+		board.setPieceAt(movedPiece, to);
+		board.setPieceAt(null, from);
 		
-		moveValidator.moveIsOnBoard(from, to);
-		moveValidator.squareFromIsDfferentThanTo(from, to);
-		moveValidator.squareIsOccupied(from);
-		moveValidator.setPlayerColor(calculateNextMoveColor());
-		moveValidator.onSquareFromIsPlayerPiece(from);
-		if (board.getPieceAt(to) != null)
-			{moveValidator.onSquareToIsNotPlayerPiece(to);}
+
+		boolean result = isKingInCheck(playerColor);
+		board.setPieceAt(movedPiece, from);
+		board.setPieceAt(oponentPiece, to);
 		
-		allMovesFromTo = moveValidator.generatesAllPosibleMovesFromTo(from, to);
-		if(allMovesFromTo.contains(to)){
-			move = moveValidator.makeMove(allMovesFromTo, from, to);
+		if (!result) {
+			return move;
 		}
-		else {
-			throw new InvalidMoveException();
-		}
-		
-					
-		return move;
-		
-			
+
+		throw new KingInCheckException();
+
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
 
+		GeneralMoveValidator generalMoveValidator = new GeneralMoveValidator(this);
+		Coordinate coordinateKing = generalMoveValidator.findPlayersKing(calculateNextMoveColor());
+
+		Move move = new Move();
+
+		for (int x = 0; x < 8; x++) {
+			for (int y = 0; y < 8; y++) {
+				Piece piece = board.getPieceAt(new Coordinate(x, y));
+				if (piece != null) {
+					if (piece.getColor() != calculateNextMoveColor()) {
+						Coordinate opponentCoordinate = new Coordinate(x, y);
+						try {
+							generalMoveValidator.moveValidator(opponentCoordinate, coordinateKing, piece.getColor());
+
+							move = generalMoveValidator.makeMove(opponentCoordinate, coordinateKing);
+							MoveType moveType = move.getType();
+							if (moveType == MoveType.CAPTURE) {
+								return true;
+							}
+						} catch (InvalidMoveException e) {
+
+						}
+					}
+				}
+			}
+		}
 		// TODO please add implementation here
 		return false;
 	}
 
 	private boolean isAnyMoveValid(Color nextMoveColor) {
 
+		for (int xFrom = 0; xFrom < 8; xFrom++) {
+			for (int yFrom = 0; yFrom < 8; yFrom++) {
+				Piece pieceFrom = board.getPieceAt(new Coordinate(xFrom, yFrom));
+				if (pieceFrom != null) {
+					if (pieceFrom.getColor() == nextMoveColor) {
+
+						for (int xTo = 0; xTo < 8; xTo++) {
+							for (int yTo = 0; yTo < 8; yTo++) {
+
+								try {
+									validateMove(new Coordinate(xFrom, yFrom), new Coordinate(xTo, yTo));
+									return true;
+
+								} catch (InvalidMoveException e) {
+
+								}
+							}
+						}
+					}
+				}
+
+			}
+		}
+
 		// TODO please add implementation here
 
 		return false;
-	}
-
-	
- /**
-  * 
-  * @param from
-  * @return
-  * @throws InvalidMoveException
-  */
-	/*private boolean onSquareIsPlayerPiece(Coordinate from) throws InvalidMoveException {
-		Color moveColor = calculateNextMoveColor();
-		Piece piece = this.board.getPieceAt(from);
-		Color pieceColor = piece.getColor();
-
-		if (pieceColor.equals(moveColor)) {
-			return true;
-		}
-
-		throw new InvalidMoveException();
 
 	}
-*/
-	
+
+	/**
+	 * 
+	 * @param from
+	 * @return
+	 * @throws InvalidMoveException
+	 */
+	/*
+	 * private boolean onSquareIsPlayerPiece(Coordinate from) throws
+	 * InvalidMoveException { Color moveColor = calculateNextMoveColor(); Piece
+	 * piece = this.board.getPieceAt(from); Color pieceColor = piece.getColor();
+	 * 
+	 * if (pieceColor.equals(moveColor)) { return true; }
+	 * 
+	 * throw new InvalidMoveException();
+	 * 
+	 * }
+	 */
 
 	private Color calculateNextMoveColor() {
 		if (this.board.getMoveHistory().size() % 2 == 0) {
