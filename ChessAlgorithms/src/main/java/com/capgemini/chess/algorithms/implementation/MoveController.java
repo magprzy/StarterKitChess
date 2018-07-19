@@ -3,15 +3,17 @@ package com.capgemini.chess.algorithms.implementation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
-
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.generated.Board;
-import com.capgemini.chess.algorithms.implementation.BoardManager;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 
+/**
+ * 
+ * @author MAGPRZYB
+ *
+ */
 public class MoveController {
 	BoardManager boardManager;
 	GeneralMoveValidator moveValidator = new GeneralMoveValidator(boardManager);
@@ -155,36 +157,50 @@ public class MoveController {
 					while (yFrom <= yTo) {
 						pawnMoves.add(new Coordinate(xTo, yFrom++));
 					}
+				} else if ((xTo == xFrom - 1 && yTo == yFrom + 1) || (xTo == xFrom && yTo == yFrom + 1)
+						|| (xTo == xFrom + 1 && yTo == yFrom + 1)) {
+					pawnMoves.add(new Coordinate(xTo, yTo));
+				} else {
+					throw new InvalidMoveException();
+				}
+			} else if (xFrom != 1) {
+				if ((xTo == xFrom - 1 && yTo == yFrom + 1) || (xTo == xFrom && yTo == yFrom + 1)
+						|| (xTo == xFrom + 1 && yTo == yFrom + 1)) {
+					pawnMoves.add(new Coordinate(xTo, yTo));
+				} else {
+					throw new InvalidMoveException();
 				}
 			}
 
-			else if ((xTo == xFrom - 1 && yTo == yFrom + 1) || (xTo == xFrom && yTo == yFrom + 1)
-					|| (xTo == xFrom+1 && yTo == yFrom + 1)) {
-				pawnMoves.add(new Coordinate(xTo, yTo));
-			}
-
-			else
+			else {
 				throw new InvalidMoveException();
-		}
-
-		else if (pieceColor == Color.BLACK) {
+			}
+		} else if (pieceColor == Color.BLACK) {
 			if (yFrom == 6) {
 				if (xTo == xFrom && yTo == yFrom - 2) {
 					while (yFrom >= yTo) {
 						pawnMoves.add(new Coordinate(xTo, yFrom--));
 					}
+				} else if ((xTo == xFrom - 1 && yTo == yFrom - 1) || (xTo == xFrom && yTo == yFrom - 1)
+						|| (xTo == xFrom && yTo == yFrom - 2)) {
+					pawnMoves.add(new Coordinate(xTo, yTo));
+				} else {
+					throw new InvalidMoveException();
+				}
+
+			} else if (xFrom != 6) {
+				if ((xTo == xFrom - 1 && yTo == yFrom - 1) || (xTo == xFrom && yTo == yFrom - 1)
+						|| (xTo == xFrom && yTo == yFrom - 2)) {
+					pawnMoves.add(new Coordinate(xTo, yTo));
+				} else {
+					throw new InvalidMoveException();
 				}
 			}
 
-			else if ((xTo == xFrom - 1 && yTo == yFrom - 1) || (xTo == xFrom && yTo == yFrom - 1)
-					|| (xTo == xFrom && yTo == yFrom - 2)) {
-				pawnMoves.add(new Coordinate(xTo, yTo));
-			}
-
-			else
+			else {
 				throw new InvalidMoveException();
+			}
 		}
-
 		pawnMoves.remove(from);
 		return pawnMoves;
 	}

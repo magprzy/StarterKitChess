@@ -28,6 +28,7 @@ import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckExcep
 public class BoardManager {
 
 	private Board board = new Board();
+	
 
 	public BoardManager() {
 		initBoard();
@@ -239,7 +240,6 @@ public class BoardManager {
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
 
 		GeneralMoveValidator generalMoveValidator = new GeneralMoveValidator(this);
-		// List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
 		Move move = new Move();
 		Color playerColor = calculateNextMoveColor();
 		// TODO please add implementation here
@@ -262,12 +262,14 @@ public class BoardManager {
 		}
 
 		throw new KingInCheckException();
-
+		
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
 
 		GeneralMoveValidator generalMoveValidator = new GeneralMoveValidator(this);
+		
+		
 		Coordinate coordinateKing = generalMoveValidator.findPlayersKing(calculateNextMoveColor());
 
 		Move move = new Move();
@@ -280,7 +282,6 @@ public class BoardManager {
 						Coordinate opponentCoordinate = new Coordinate(x, y);
 						try {
 							generalMoveValidator.moveValidator(opponentCoordinate, coordinateKing, piece.getColor());
-
 							move = generalMoveValidator.makeMove(opponentCoordinate, coordinateKing);
 							MoveType moveType = move.getType();
 							if (moveType == MoveType.CAPTURE) {

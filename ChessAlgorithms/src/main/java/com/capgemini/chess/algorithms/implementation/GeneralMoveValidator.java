@@ -28,13 +28,15 @@ public class GeneralMoveValidator {
 
 	public GeneralMoveValidator(BoardManager boardManager) {
 		this.boardManager = boardManager;
-	}
-	
-	public boolean moveValidator(Coordinate from, Coordinate to, Color playerColor) throws InvalidMoveException{
 		
+	}
+
+	
+	
+	public boolean moveValidator(Coordinate from, Coordinate to, Color playerColor) throws InvalidMoveException {
+
 		Board board = boardManager.getBoard();
 		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
-		
 		
 		moveIsOnBoard(from, to);
 		squareFromIsDfferentThanTo(from, to);
@@ -47,17 +49,13 @@ public class GeneralMoveValidator {
 		allMovesFromTo = generatesAllPosibleMovesFromTo(from, to);
 		allMovesFromTo.contains(to);
 		return true;
-		//throw new InvalidMoveException();
-		
-		
-		
+
 	}
-	
+
 	public boolean squareIsInRange(int x, int y) {
 		if (x >= 0 && x < 8 && y >= 0 && y < 8) {
 			return true;
 		}
-
 		return false;
 	}
 
@@ -85,16 +83,9 @@ public class GeneralMoveValidator {
 
 		if (xFrom != xTo || yFrom != yTo) {
 			return true;
-		} else
-			throw new InvalidMoveException();
+		}
+		throw new InvalidMoveException();
 	}
-
-	/*
-	 * public boolean squareIsOccupiedByOpponent(Coordinate to) throws
-	 * InvalidMoveException { Board board = boardManager.getBoard(); Piece piece
-	 * = board.getPieceAt(to); if (piece != null) { return true; } else return
-	 * false; }
-	 */
 
 	public PieceType pieceTypeOnSquare(Coordinate from) {
 		Board board = boardManager.getBoard();
@@ -108,17 +99,15 @@ public class GeneralMoveValidator {
 	}
 
 	public boolean onSquareFromIsPlayerPiece(Coordinate from) throws InvalidMoveException {
-
 		Board board = boardManager.getBoard();
 		Piece piece = board.getPieceAt(from);
 		Color pieceColor = piece.getColor();
+		
 
 		if (pieceColor.equals(playerColor)) {
 			return true;
-		} else {
-			throw new InvalidMoveException();
 		}
-
+		throw new InvalidMoveException();
 	}
 
 	public boolean onSquareToIsNotPlayerPiece(Coordinate to) throws InvalidMoveException {
@@ -130,7 +119,6 @@ public class GeneralMoveValidator {
 			throw new InvalidMoveException();
 		} else
 			return true;
-
 	}
 
 	public List<Coordinate> generatesAllPosibleMovesFromTo(Coordinate from, Coordinate to) throws InvalidMoveException {
@@ -171,17 +159,14 @@ public class GeneralMoveValidator {
 		int full = 0;
 		List<Coordinate> allMovesFromTo = new ArrayList<Coordinate>();
 		allMovesFromTo = generatesAllPosibleMovesFromTo(from, to);
-		
 
 		if (allMovesFromTo.size() == 1 && pieceFrom.getType() != PieceType.PAWN) {
 			if (pieceTo == null) {
 				move.setType(MoveType.ATTACK);
 				move.setMovedPiece(pieceFrom);
-				//board.setPieceAt(pieceFrom, to);
 			} else {
 				move.setType(MoveType.CAPTURE);
 				move.setMovedPiece(pieceFrom);
-				//board.setPieceAt(pieceFrom, to);
 			}
 		} else if (allMovesFromTo.size() > 1 && pieceFrom.getType() != PieceType.PAWN) {
 			allMovesFromTo.remove(to);
@@ -197,11 +182,9 @@ public class GeneralMoveValidator {
 				if (pieceTo == null) {
 					move.setType(MoveType.ATTACK);
 					move.setMovedPiece(pieceFrom);
-					//board.setPieceAt(pieceFrom, to);
 				} else {
 					move.setType(MoveType.CAPTURE);
 					move.setMovedPiece(pieceFrom);
-					//board.setPieceAt(pieceFrom, to);
 				}
 			} else
 				throw new InvalidMoveException();
@@ -210,14 +193,13 @@ public class GeneralMoveValidator {
 				if (pieceTo == null) {
 					move.setType(MoveType.ATTACK);
 					move.setMovedPiece(pieceFrom);
-					//board.setPieceAt(pieceFrom, to);
+					
 				} else
 					throw new InvalidMoveException();
 			} else if (from.getX() != to.getX()) {
 				if (pieceTo != null) {
 					move.setType(MoveType.CAPTURE);
 					move.setMovedPiece(pieceFrom);
-					//board.setPieceAt(pieceFrom, to);
 				} else
 					throw new InvalidMoveException();
 			}
@@ -229,7 +211,6 @@ public class GeneralMoveValidator {
 				if (pieceBetweenFromTo == null) {
 					move.setType(MoveType.ATTACK);
 					move.setMovedPiece(pieceFrom);
-					//board.setPieceAt(pieceFrom, to);
 				}
 			} else
 				throw new InvalidMoveException();
@@ -242,19 +223,12 @@ public class GeneralMoveValidator {
 
 	}
 
-	/*
-	 * public boolean squareIsFree(Coordinate to) {
-	 * 
-	 * Board board = boardManager.getBoard(); Piece piece =
-	 * board.getPieceAt(to); if (piece == null) { return true; } return false; }
-	 */
 	public Coordinate findPlayersKing(Color playerColor) {
 		this.playerColor = playerColor;
 		Board board = boardManager.getBoard();
 		int xKing = 0;
 		int yKing = 0;
 		Coordinate kingCoordinate;
-		// Piece piece = board.getPieceAt(new Coordinate(x, y));
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
@@ -275,7 +249,5 @@ public class GeneralMoveValidator {
 
 		return null;
 	}
-
-	
 
 }
